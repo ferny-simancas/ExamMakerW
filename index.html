@@ -35,8 +35,12 @@
         .question-number { font-weight: 700; margin-bottom: 5px; display: block; }
         .question-item:not([data-type="image"]):not([data-type="free_text"]):not([data-type="reading"]) .question-number::before { counter-increment: question-counter; content: counter(question-counter) ". "; }
 
-        .edit-input, textarea { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; margin-bottom: 5px; background: #fff; }
-        .option-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+        .edit-input, textarea { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; margin-bottom: 5px; background: #fff; display: block; resize: none; overflow: hidden; }
+        
+        /* Estilos de opciones */
+        .option-row { display: flex; align-items: flex-start; gap: 5px; margin-bottom: 5px; }
+        .option-letter { font-weight: 600; padding-top: 8px; font-size: 12px; white-space: nowrap; }
+        
         .img-preview { max-width: 100%; max-height: 400px; display: block; margin: 10px auto; }
         .img-controls { background: #f0f9ff; padding: 10px; border-radius: 4px; border: 1px dashed #0284c7; text-align: center; }
         .opt-controls { margin-top: 5px; display: flex; gap: 5px; }
@@ -48,10 +52,8 @@
         button { padding: 8px 12px; cursor: pointer; border: none; border-radius: 4px; font-weight: 600; font-family: var(--font-main); font-size: 12px; transition: 0.2s; }
         button:hover { opacity: 0.9; }
         
-        /* Colores de botones */
-        .btn-file { background: #374151; color: white; } /* Gris oscuro para archivos */
-        .btn-save { background: #2563eb; color: white; } /* Azul guardar */
-        
+        .btn-file { background: #374151; color: white; }
+        .btn-save { background: #2563eb; color: white; }
         .btn-add { background: #059669; color: white; }
         .btn-print { background: #000; color: white; }
         .btn-lang { background: #4f46e5; color: white; }
@@ -62,8 +64,10 @@
         .btn-simple { background: #0891b2; color: white; }
         .btn-icontec { background: #d97706; color: white; }
 
-        /* Estado del archivo */
         #fileStatus { font-size: 11px; color: #666; font-style: italic; margin-left: 10px; font-weight: 500;}
+
+        /* Clase auxiliar para impresión */
+        .print-replace { display: none; }
 
         @media print {
             @page { size: Legal; margin: 1.5cm 1.5cm 1.5cm 1.5cm; }
@@ -73,11 +77,30 @@
             header { background-color: white !important; border: 3px solid var(--header-color) !important; -webkit-print-color-adjust: exact; border-radius: 0; }
             .question-list { column-count: 2; column-gap: 30px; width: 100%; display: block; column-fill: auto; height: auto; }
             .question-item { border: none; padding: 0; margin-bottom: 20px; page-break-inside: avoid; break-inside: avoid; }
-            .question-item[data-type="free_text"] textarea { font-style: normal; font-weight: 500; text-align: justify; }
-            textarea, .edit-input { border: none; padding: 0; margin: 0; resize: none; background: transparent; font-family: 'Montserrat', sans-serif; font-size: 10pt; line-height: 1.3; overflow: hidden; }
-            .option-row input[type="text"] { border-bottom: none; }
-            .reading-text { border: 1px solid #ccc; padding: 5px; font-size: 9pt; text-align: justify; }
+            
+            /* OCULTAR TEXTAREAS Y MOSTRAR TEXTO PLANO */
+            textarea, .edit-input { display: none !important; }
+            
+            .print-replace { 
+                display: block !important; 
+                white-space: pre-wrap; /* Mantiene saltos de línea */
+                font-family: 'Montserrat', sans-serif; 
+                font-size: 10pt; 
+                line-height: 1.3; 
+                color: #000;
+                text-align: justify;
+                width: 100%;
+            }
+
+            /* Ajustes específicos */
+            .option-row .print-replace { flex: 1; } /* Asegura que la opción ocupe el espacio */
+            .reading-text + .print-replace { border: 1px solid #ccc; padding: 5px; display: block !important; } /* Borde para lectura si es necesario */
+            
             .info-field input { border-bottom: 1px solid #000 !important; }
+            .option-letter { padding-top: 0; }
+            
+            /* Ajuste para texto libre */
+            .question-item[data-type="free_text"] { column-span: all; width: 100%; }
         }
     </style>
 </head>
@@ -156,9 +179,8 @@
         const container = document.getElementById('qContainer');
         const statusLabel = document.getElementById('fileStatus');
         
-        // Variables de estado del archivo
-        let fileHandle = null; // Referencia al archivo en disco
-        let isModified = false; // ¿Hay cambios sin guardar?
+        let fileHandle = null;
+        let isModified = false;
         let currentLang = 'es';
         
         const t = {
@@ -190,105 +212,74 @@
             }
         };
 
-        // --- SISTEMA DE ARCHIVOS (FILE SYSTEM ACCESS API) ---
+        // --- MANEJO DE IMPRESIÓN INTELIGENTE ---
+        // Este bloque es la solución: cambia textareas por divs antes de imprimir
+        window.onbeforeprint = function() {
+            document.querySelectorAll('textarea').forEach(el => {
+                const div = document.createElement('div');
+                div.className = 'print-replace';
+                div.textContent = el.value; // Copia el texto exacto
+                
+                // Si es un texto de lectura, le añadimos borde para mantener estilo
+                if(el.classList.contains('reading-text')) div.style.border = "1px solid #ccc";
+                
+                el.parentNode.insertBefore(div, el.nextSibling); // Inserta el div después del textarea
+            });
+        };
 
-        // 1. NUEVO DOCUMENTO
+        window.onafterprint = function() {
+            document.querySelectorAll('.print-replace').forEach(el => el.remove()); // Limpia al terminar
+        };
+
+        // --- SISTEMA DE ARCHIVOS ---
+
         async function newDocument() {
             if (isModified && !confirm(t[currentLang].unsaved_msg)) return;
-            
-            // Reiniciar todo
             container.innerHTML = '';
             document.getElementById('examTitle').innerText = t[currentLang].titleDefault;
             document.querySelectorAll('.info-field input').forEach(i => i.value = '');
             document.getElementById('icontecLogo').style.display = 'block';
-            
-            fileHandle = null;
-            isModified = false;
-            updateStatus();
+            fileHandle = null; isModified = false; updateStatus();
         }
 
-        // 2. ABRIR DOCUMENTO
         async function openDocument() {
             if (isModified && !confirm(t[currentLang].unsaved_msg)) return;
-
             try {
-                // Abrir selector de archivos
                 [fileHandle] = await window.showOpenFilePicker({
                     types: [{ description: 'Examen JSON', accept: { 'application/json': ['.json'] } }],
                     multiple: false
                 });
-
-                // Leer archivo
                 const file = await fileHandle.getFile();
                 const contents = await file.text();
-                const data = JSON.parse(contents);
-
-                // Cargar datos en pantalla
-                loadDataToScreen(data);
-                
-                isModified = false;
-                updateStatus();
-
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error(err);
-                    alert("Error al abrir el archivo. (Nota: Esta función requiere Chrome, Edge u Opera en PC).");
-                }
-            }
+                loadDataToScreen(JSON.parse(contents));
+                isModified = false; updateStatus();
+            } catch (err) { if (err.name !== 'AbortError') { console.error(err); alert("Error al abrir."); } }
         }
 
-        // 3. GUARDAR (Ctrl+S)
         async function saveDocument() {
-            if (!fileHandle) {
-                // Si es nuevo, usar "Guardar Como"
-                return await saveDocumentAs();
-            }
-            
+            if (!fileHandle) return await saveDocumentAs();
             try {
-                // Crear flujo de escritura sobre el mismo archivo
                 const writable = await fileHandle.createWritable();
-                const data = getDataFromScreen();
-                await writable.write(JSON.stringify(data, null, 2));
+                await writable.write(JSON.stringify(getDataFromScreen(), null, 2));
                 await writable.close();
-                
-                isModified = false;
-                updateStatus();
-                // alert("Guardado correctamente."); // Opcional, Word no avisa, solo guarda.
-            } catch (err) {
-                console.error(err);
-                alert("Error al guardar.");
-            }
+                isModified = false; updateStatus();
+            } catch (err) { alert("Error al guardar."); }
         }
 
-        // 4. GUARDAR COMO...
         async function saveDocumentAs() {
             try {
-                const opts = {
+                fileHandle = await window.showSaveFilePicker({
                     types: [{ description: 'Examen JSON', accept: { 'application/json': ['.json'] } }],
                     suggestedName: 'Examen-Nuevo'
-                };
-                
-                // Abrir diálogo de guardar
-                fileHandle = await window.showSaveFilePicker(opts);
-                
-                // Escribir archivo
+                });
                 const writable = await fileHandle.createWritable();
-                const data = getDataFromScreen();
-                await writable.write(JSON.stringify(data, null, 2));
+                await writable.write(JSON.stringify(getDataFromScreen(), null, 2));
                 await writable.close();
-                
-                isModified = false;
-                updateStatus();
-
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error(err);
-                    alert("Error al guardar.");
-                }
-            }
+                isModified = false; updateStatus();
+            } catch (err) { if (err.name !== 'AbortError') alert("Error al guardar."); }
         }
 
-        // --- FUNCIONES AUXILIARES DE DATOS ---
+        // --- FUNCIONES DE DATOS ---
 
         function getDataFromScreen() {
             const data = [];
@@ -297,45 +288,33 @@
                 let qData = { type };
                 
                 if (type === 'image') qData.src = item.querySelector('img').src;
-                else if (type === 'free_text') qData.text = item.querySelector('.q-text').value;
-                else if (type === 'simple') qData.text = item.querySelector('.q-text').value;
+                else if (type === 'free_text' || type === 'simple') qData.text = item.querySelector('.q-text').value;
                 else {
                     const txt = item.querySelector('.q-text');
                     qData.text = txt ? txt.value : '';
                     
                     if (type === 'multiple') {
-                        qData.options = Array.from(item.querySelectorAll('.option-row input')).map(i => i.value);
+                        qData.options = Array.from(item.querySelectorAll('.option-row textarea')).map(i => i.value);
                     } else if (type === 'reading') {
                         qData.reading = item.querySelector('.q-reading').value;
                     }
                 }
                 data.push(qData);
             });
-            
-            const infoInputs = Array.from(document.querySelectorAll('.info-field input')).map(i => i.value);
-            const titleText = document.getElementById('examTitle').innerText;
-            const icontecVisible = document.getElementById('icontecLogo').style.display !== 'none';
-            
             return { 
-                questions: data, 
-                title: titleText, 
-                info: infoInputs, 
-                lang: currentLang, 
-                icontec: icontecVisible 
+                questions: data, title: document.getElementById('examTitle').innerText, 
+                info: Array.from(document.querySelectorAll('.info-field input')).map(i => i.value),
+                lang: currentLang, icontec: document.getElementById('icontecLogo').style.display !== 'none'
             };
         }
 
         function loadDataToScreen(saved) {
-            container.innerHTML = ''; // Limpiar
-            
+            container.innerHTML = '';
             if(saved.lang) { currentLang = saved.lang; applyLang(); }
             if(saved.title) document.getElementById('examTitle').innerText = saved.title;
-            
             const icontecImg = document.getElementById('icontecLogo');
-            if(saved.icontec === false) icontecImg.style.display = 'none'; else icontecImg.style.display = 'block';
-            
+            icontecImg.style.display = saved.icontec === false ? 'none' : 'block';
             if(saved.questions) saved.questions.forEach(q => addQ(q.type, q));
-            
             if(saved.info) {
                 const inputs = document.querySelectorAll('.info-field input');
                 saved.info.forEach((val, i) => { if(inputs[i]) inputs[i].value = val; });
@@ -344,47 +323,22 @@
 
         function updateStatus() {
             const lang = t[currentLang];
-            let text = "";
-            
-            if (!fileHandle) {
-                text = lang.status_new;
-            } else {
-                text = fileHandle.name + " - " + lang.status_saved;
-            }
-
-            if (isModified) {
-                text += " " + lang.status_mod;
-                statusLabel.style.color = "#d97706"; // Naranja si hay cambios
-            } else {
-                statusLabel.style.color = "#059669"; // Verde si está guardado
-            }
-            
+            let text = !fileHandle ? lang.status_new : fileHandle.name + " - " + lang.status_saved;
+            if (isModified) { text += " " + lang.status_mod; statusLabel.style.color = "#d97706"; }
+            else statusLabel.style.color = "#059669";
             statusLabel.innerText = text;
         }
 
-        // Detectar cambios (Atajo de teclado Ctrl+S y marcado de modificado)
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                saveDocument();
-            }
+        document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveDocument(); } });
+        document.addEventListener('input', (e) => { 
+            if (!isModified) { isModified = true; updateStatus(); }
+            if (e.target.tagName === 'TEXTAREA') autoResize(e.target);
         });
+        
+        window.onbeforeunload = () => isModified ? t[currentLang].unsaved_msg : null;
 
-        // Marcar como modificado al escribir
-        document.addEventListener('input', () => {
-            if (!isModified) {
-                isModified = true;
-                updateStatus();
-            }
-        });
+        // --- FUNCIONES UI ---
 
-        // Advertencia al cerrar pestaña
-        window.onbeforeunload = function() {
-            if (isModified) return t[currentLang].unsaved_msg;
-        };
-
-
-        // --- UI & CORE (Funciones visuales) ---
         function toggleIcontec() {
             const img = document.getElementById('icontecLogo');
             img.style.display = (img.style.display === 'none') ? 'block' : 'none';
@@ -407,30 +361,29 @@
             document.querySelector('.btn-q-simple').innerText = lang.btn_simple;
             document.querySelectorAll('.btn-upload').forEach(b => b.innerText = lang.btn_upload);
             document.querySelectorAll('.btn-link').forEach(b => b.innerText = lang.btn_link);
-            document.querySelectorAll('.question-item[data-type="free_text"] .q-text').forEach(tx => { tx.placeholder = lang.ph_free; });
-            document.querySelectorAll('.question-item[data-type="reading"] .q-text').forEach(tx => { tx.placeholder = lang.ph_subq; });
-            document.querySelectorAll('.question-item[data-type="reading"] .q-reading').forEach(tx => { tx.placeholder = lang.ph_read; });
+            document.querySelectorAll('.question-item[data-type="free_text"] .q-text').forEach(tx => tx.placeholder = lang.ph_free);
+            document.querySelectorAll('.question-item[data-type="reading"] .q-text').forEach(tx => tx.placeholder = lang.ph_subq);
+            document.querySelectorAll('.question-item[data-type="reading"] .q-reading').forEach(tx => tx.placeholder = lang.ph_read);
             updateStatus();
         }
 
         function handleImageUpload(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     const img = input.closest('.question-item').querySelector('img');
-                    img.src = e.target.result;
-                    img.style.display = 'block';
+                    img.src = e.target.result; img.style.display = 'block';
                     isModified = true; updateStatus();
-                }
+                };
                 reader.readAsDataURL(input.files[0]);
             }
         }
+        
         function handleImageURL(btn) {
             const url = prompt(t[currentLang].img_prompt_url);
             if(url) {
                 const img = btn.closest('.question-item').querySelector('img');
-                img.src = url;
-                img.style.display = 'block';
+                img.src = url; img.style.display = 'block';
                 isModified = true; updateStatus();
             }
         }
@@ -442,7 +395,7 @@
             const lang = t[currentLang];
             const div = document.createElement('div');
             div.className = 'option-row';
-            div.innerHTML = `<span class="option-letter">${nextLetter})</span><input type="text" class="edit-input" placeholder="${lang.ph_opt} ${nextLetter}">`;
+            div.innerHTML = `<span class="option-letter">${nextLetter})</span><textarea class="edit-input" placeholder="${lang.ph_opt} ${nextLetter}" rows="1"></textarea>`;
             container.appendChild(div);
             isModified = true; updateStatus();
         }
@@ -486,15 +439,20 @@
                     const letter = String.fromCharCode(65 + index);
                     const row = document.createElement('div');
                     row.className = 'option-row';
-                    row.innerHTML = `<span class="option-letter">${letter})</span><input type="text" class="edit-input" placeholder="${lang.ph_opt} ${letter}" value="${val}">`;
+                    row.innerHTML = `<span class="option-letter">${letter})</span><textarea class="edit-input" placeholder="${lang.ph_opt} ${letter}" rows="1">${val}</textarea>`;
                     optContainer.appendChild(row);
+                    autoResize(row.querySelector('textarea'));
                 });
             }
 
             if (content) {
                 if(type === 'image' && content.src) { const img = div.querySelector('img'); img.src = content.src; img.style.display = 'block'; }
                 if(content.text && type !== 'free_text' && type !== 'simple') { const t = div.querySelector('.q-text'); if(t){ t.value = content.text; autoResize(t); } }
-                if((type === 'free_text' || type === 'simple') && content.text) { div.querySelector('.q-text').value = content.text; autoResize(div.querySelector('.q-text')); }
+                if((type === 'free_text' || type === 'simple') && content.text) { 
+                    const t = div.querySelector('.q-text');
+                    t.value = content.text; 
+                    autoResize(t); 
+                }
                 if(content.reading) { div.querySelector('.q-reading').value = content.reading; autoResize(div.querySelector('.q-reading')); }
             }
             
