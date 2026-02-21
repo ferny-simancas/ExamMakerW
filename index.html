@@ -3,80 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor de Exámenes - Estilo Word</title>
+    <title>Editor de Exámenes - Estilo Word 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     
     <style>
-        :root { --primary: #2563eb; --bg: #f3f4f6; --font-main: 'Montserrat', sans-serif; --header-color: #0a2445; }
-        body { font-family: var(--font-main); background: var(--bg); margin: 0; padding: 20px; color: #000; }
-        .container { max-width: 900px; min-height: 1200px; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* --- ESTILOS GENERALES FLUENT DESIGN (MICROSOFT 2026 - LIGHT MODE) --- */
+        :root { 
+            --primary: #005fb8; /* Windows Blue */
+            --bg-desktop: #f0f4f9; /* Fondo claro del escritorio */
+            --surface-mica: rgba(255, 255, 255, 0.75); /* Efecto Mica */
+            --border-light: rgba(0, 0, 0, 0.06);
+            --font-ui: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+            --font-doc: 'Montserrat', sans-serif; 
+            --header-color: #003366; 
+            --text-main: #1a1a1a;
+            --text-muted: #5c5c5c;
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --shadow-float: 0 12px 32px rgba(0,0,0,0.06);
+        }
         
-        /* HEADER */
-        header { background-color: white; border: 3px solid var(--header-color); color: #333; margin-bottom: 20px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 3px; }
+        body { 
+            font-family: var(--font-ui); 
+            background: var(--bg-desktop);
+            /* Fondo sutil inspirado en los "Blooms" claros de Windows */
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(0, 95, 184, 0.05), transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(0, 120, 212, 0.05), transparent 40%);
+            background-attachment: fixed;
+            margin: 0; 
+            padding: 20px; 
+            color: var(--text-main); 
+        }
+
+        /* LA HOJA DE PAPEL (DOCUMENTO) */
+        .container { 
+            max-width: 900px; 
+            min-height: 1200px; 
+            margin: 0 auto; 
+            background: #ffffff; 
+            padding: 50px; 
+            box-shadow: var(--shadow-float); 
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0,0,0,0.02);
+            font-family: var(--font-doc);
+        }
+        
+        /* HEADER DEL EXAMEN */
+        header { 
+            background-color: transparent; 
+            border: 2px solid var(--header-color); 
+            color: #333; 
+            margin-bottom: 30px; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-radius: var(--radius-sm); 
+        }
         .header-left { width: 100px; display: flex; justify-content: flex-start; }
         .logo-img { width: 85px; height: 85px; object-fit: contain; }
         .header-center { flex-grow: 1; text-align: center; padding: 0 10px; }
-        .header-center h1 { font-size: 18px; font-weight: 700; margin: 0; line-height: 1.2; text-transform: uppercase; color: var(--header-color); }
+        .header-center h1 { font-size: 18px; font-weight: 700; margin: 0; line-height: 1.2; text-transform: uppercase; color: var(--header-color); letter-spacing: 0.5px;}
         .header-center .motto { font-size: 11px; font-style: italic; margin: 5px 0 10px 0; font-weight: 500; color: #555; }
         .header-center h2 { font-size: 14px; font-weight: 600; margin: 0; text-transform: uppercase; color: #333; border-bottom: 1px dashed #999; display: inline-block; padding-bottom: 2px; }
         .header-right { width: 100px; display: flex; justify-content: flex-end; align-items: center; }
-        .icontec-img { width: 90px; height: 90px; object-fit: contain; display: block; }
+        .icontec-img { width: 90px; height: 90px; object-fit: contain; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
 
         /* INFO & PREGUNTAS */
-        .info-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 25px; width: 100%; }
-        .info-row { display: flex; gap: 20px; width: 100%; }
+        .info-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; width: 100%; }
+        .info-row { display: flex; gap: 24px; width: 100%; }
         .info-field { display: flex; align-items: flex-end; }
-        .info-field label { font-weight: 700; font-size: 11px; margin-right: 5px; white-space: nowrap; padding-bottom: 2px;}
+        .info-field label { font-weight: 700; font-size: 11px; margin-right: 8px; white-space: nowrap; padding-bottom: 2px; color: var(--header-color);}
         .field-large { flex: 7; } .field-small { flex: 3; } 
-        .info-field input { width: 100%; border: none; border-bottom: 1px solid #000; background: transparent; font-size: 12px; outline: none; font-family: var(--font-main); height: 18px; }
+        .info-field input { 
+            width: 100%; 
+            border: none; 
+            border-bottom: 1px solid #aaa; 
+            background: transparent; 
+            font-size: 12px; 
+            outline: none; 
+            font-family: var(--font-doc); 
+            height: 20px; 
+            transition: 0.2s;
+        }
+        .info-field input:focus { border-bottom: 2px solid var(--primary); }
 
         .question-list { counter-reset: question-counter; list-style: none; padding: 0; }
-        .question-item { border: 1px solid #e5e7eb; margin-bottom: 15px; padding: 15px; border-radius: 8px; background: #fff; position: relative; }
-        .question-number { font-weight: 700; margin-bottom: 5px; display: block; }
+        .question-item { 
+            border: 1px solid var(--border-light); 
+            margin-bottom: 20px; 
+            padding: 20px; 
+            border-radius: var(--radius-sm); 
+            background: #fafbfc; 
+            position: relative; 
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .question-item:hover { background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); }
+        .question-number { font-weight: 700; margin-bottom: 8px; display: block; color: var(--header-color); }
         .question-item:not([data-type="image"]):not([data-type="free_text"]):not([data-type="reading"]) .question-number::before { counter-increment: question-counter; content: counter(question-counter) ". "; }
 
-        .edit-input, textarea { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; margin-bottom: 5px; background: #fff; display: block; resize: none; overflow: hidden; }
+        /* Inputs y Textareas estilo Fluent */
+        .edit-input, textarea { 
+            width: 100%; 
+            box-sizing: border-box; 
+            padding: 10px 12px; 
+            border: 1px solid rgba(0,0,0,0.1); 
+            border-bottom: 2px solid rgba(0,0,0,0.15);
+            border-radius: var(--radius-sm); 
+            font-family: inherit; 
+            margin-bottom: 8px; 
+            background: #ffffff; 
+            display: block; 
+            resize: none; 
+            overflow: hidden; 
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+        .edit-input:focus, textarea:focus { 
+            outline: none; 
+            border-bottom-color: var(--primary); 
+            background: #fdfdfd; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
         
         /* Estilos de opciones */
-        .option-row { display: flex; align-items: flex-start; gap: 5px; margin-bottom: 5px; }
-        .option-letter { font-weight: 600; padding-top: 8px; font-size: 12px; white-space: nowrap; }
+        .option-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 5px; }
+        .option-letter { font-weight: 600; padding-top: 10px; font-size: 12px; white-space: nowrap; }
         
-        .img-preview { max-width: 100%; max-height: 400px; display: block; margin: 10px auto; }
-        .img-controls { background: #f0f9ff; padding: 10px; border-radius: 4px; border: 1px dashed #0284c7; text-align: center; }
-        .opt-controls { margin-top: 5px; display: flex; gap: 5px; }
-        .btn-opt { padding: 2px 8px; font-size: 10px; background: #e2e8f0; color: #333; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; }
+        .img-preview { max-width: 100%; max-height: 400px; display: block; margin: 15px auto; border-radius: var(--radius-sm); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .img-controls { background: #f0f4f9; padding: 12px; border-radius: var(--radius-sm); border: 1px dashed #005fb8; text-align: center; }
+        .opt-controls { margin-top: 8px; display: flex; gap: 8px; }
+        .btn-opt { padding: 4px 12px; font-size: 11px; background: #e5e7eb; color: #333; border: none; border-radius: 4px; cursor: pointer; font-family: var(--font-ui); font-weight: 600; transition: 0.2s; }
+        .btn-opt:hover { background: #d1d5db; }
 
-        /* CONTROLES ESTILO WORD */
-        .controls { position: sticky; top: 10px; background: #fff; padding: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 100; margin-bottom: 20px; border-radius: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .control-group { display: flex; gap: 5px; align-items: center; border-right: 1px solid #ddd; padding-right: 10px; margin-right: 5px; }
-        button { padding: 8px 12px; cursor: pointer; border: none; border-radius: 4px; font-weight: 600; font-family: var(--font-main); font-size: 12px; transition: 0.2s; }
-        button:hover { opacity: 0.9; }
+        /* CONTROLES ESTILO WORD (MICA EFFECT) */
+        .controls { 
+            position: sticky; 
+            top: 15px; 
+            background: var(--surface-mica); 
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 12px 16px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+            z-index: 100; 
+            margin-bottom: 25px; 
+            border-radius: var(--radius-md); 
+            border: 1px solid rgba(255,255,255,0.8);
+            display: flex; 
+            gap: 12px; 
+            flex-wrap: wrap; 
+            align-items: center; 
+        }
+        .control-group { 
+            display: flex; 
+            gap: 6px; 
+            align-items: center; 
+            border-right: 1px solid rgba(0,0,0,0.1); 
+            padding-right: 12px; 
+            margin-right: 4px; 
+        }
         
-        .btn-file { background: #374151; color: white; }
-        .btn-save { background: #2563eb; color: white; }
-        .btn-add { background: #059669; color: white; }
-        .btn-print { background: #000; color: white; }
-        .btn-lang { background: #4f46e5; color: white; }
-        .btn-del { background: #dc2626; color: white; font-size: 11px; margin-top: 5px; }
-        .btn-upload { background: #6366f1; color: white; margin: 0 5px; }
-        .btn-link { background: #8b5cf6; color: white; margin: 0 5px; }
-        .btn-free-text { background: #64748b; color: white; }
-        .btn-simple { background: #0891b2; color: white; }
-        .btn-icontec { background: #d97706; color: white; }
+        button { 
+            padding: 8px 14px; 
+            cursor: pointer; 
+            border: 1px solid transparent; 
+            border-radius: var(--radius-sm); 
+            font-weight: 600; 
+            font-family: var(--font-ui); 
+            font-size: 12px; 
+            transition: all 0.2s ease; 
+        }
+        button:hover { filter: brightness(0.95); transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button:active { transform: translateY(0); }
+        
+        /* Paleta de botones Fluent */
+        .btn-file { background: #ffffff; color: #333; border: 1px solid rgba(0,0,0,0.1); }
+        .btn-file:hover { background: #f3f4f6; }
+        .btn-save { background: var(--primary); color: white; }
+        .btn-print { background: #242424; color: white; }
+        .btn-lang { background: #f8f9fa; color: #333; border: 1px solid rgba(0,0,0,0.1); }
+        .btn-icontec { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        
+        /* Botones de añadir preguntas (Colores pastel modernos) */
+        .btn-add { background: #e6f4ea; color: #137333; }
+        .btn-simple { background: #e8f0fe; color: #1967d2; }
+        .btn-img { background: #fce8e6; color: #c5221f; }
+        .btn-free-text { background: #f3f4f6; color: #374151; }
+        
+        .btn-del { background: #fee2e2; color: #ef4444; font-size: 11px; margin-top: 5px; padding: 6px 10px; position: absolute; top: 10px; right: 10px; }
+        .btn-upload { background: #e8f0fe; color: #1967d2; margin: 0 5px; }
+        .btn-link { background: #f3f4f6; color: #374151; margin: 0 5px; border: 1px solid #ccc; }
 
-        #fileStatus { font-size: 11px; color: #666; font-style: italic; margin-left: 10px; font-weight: 500;}
+        #fileStatus { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-left: 10px; background: rgba(0,0,0,0.04); padding: 4px 10px; border-radius: 12px;}
 
         /* Clase auxiliar para impresión */
         .print-replace { display: none; }
 
+        /* --- MANTENEMOS LA LÓGICA DE IMPRESIÓN INTACTA --- */
         @media print {
             @page { size: Legal; margin: 1.5cm 1.5cm 1.5cm 1.5cm; }
             body { background: white; padding: 0; margin: 0; font-size: 10pt !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; height: auto; }
-            .container { box-shadow: none; max-width: 100%; padding: 0; margin: 0; }
+            .container { box-shadow: none; border: none; max-width: 100%; padding: 0; margin: 0; }
             .controls, .btn-del, select, .no-print-label, .img-controls, .opt-controls, #fileStatus { display: none !important; }
             header { background-color: white !important; border: 3px solid var(--header-color) !important; -webkit-print-color-adjust: exact; border-radius: 0; }
             .question-list { column-count: 2; column-gap: 30px; width: 100%; display: block; column-fill: auto; height: auto; }
-            .question-item { border: none; padding: 0; margin-bottom: 20px; page-break-inside: avoid; break-inside: avoid; }
+            .question-item { background: transparent !important; border: none; padding: 0; margin-bottom: 20px; page-break-inside: avoid; break-inside: avoid; box-shadow: none !important;}
             
             /* OCULTAR TEXTAREAS Y MOSTRAR TEXTO PLANO */
             textarea, .edit-input { display: none !important; }
@@ -124,12 +256,14 @@
             <button class="btn-icontec" onclick="toggleIcontec()">🏆 Icontec</button>
         </div>
 
-        <button class="btn-add btn-q-multi" onclick="addQ('multiple')">+ Selección</button>
-        <button class="btn-simple btn-q-simple" onclick="addQ('simple')">+ Enunciado</button>
-        <button class="btn-add btn-q-read" onclick="addQ('reading')">+ Lectura</button>
-        <button class="btn-add btn-q-dev" onclick="addQ('dev')">+ Abierta</button>
-        <button class="btn-add btn-q-img" onclick="addQ('image')" style="background: #db2777;">+ Imagen</button>
-        <button class="btn-free-text btn-q-text" onclick="addQ('free_text')">+ Texto</button>
+        <div class="control-group" style="border: none;">
+            <button class="btn-add btn-q-multi" onclick="addQ('multiple')">+ Selección</button>
+            <button class="btn-simple btn-q-simple" onclick="addQ('simple')">+ Enunciado</button>
+            <button class="btn-add btn-q-read" onclick="addQ('reading')">+ Lectura</button>
+            <button class="btn-add btn-q-dev" onclick="addQ('dev')">+ Abierta</button>
+            <button class="btn-img btn-q-img" onclick="addQ('image')">+ Imagen</button>
+            <button class="btn-free-text btn-q-text" onclick="addQ('free_text')">+ Texto</button>
+        </div>
     </div>
 
     <div class="container">
@@ -213,22 +347,20 @@
         };
 
         // --- MANEJO DE IMPRESIÓN INTELIGENTE ---
-        // Este bloque es la solución: cambia textareas por divs antes de imprimir
         window.onbeforeprint = function() {
             document.querySelectorAll('textarea').forEach(el => {
                 const div = document.createElement('div');
                 div.className = 'print-replace';
-                div.textContent = el.value; // Copia el texto exacto
+                div.textContent = el.value; 
                 
-                // Si es un texto de lectura, le añadimos borde para mantener estilo
                 if(el.classList.contains('reading-text')) div.style.border = "1px solid #ccc";
                 
-                el.parentNode.insertBefore(div, el.nextSibling); // Inserta el div después del textarea
+                el.parentNode.insertBefore(div, el.nextSibling); 
             });
         };
 
         window.onafterprint = function() {
-            document.querySelectorAll('.print-replace').forEach(el => el.remove()); // Limpia al terminar
+            document.querySelectorAll('.print-replace').forEach(el => el.remove()); 
         };
 
         // --- SISTEMA DE ARCHIVOS ---
@@ -418,7 +550,7 @@
             } else if (type === 'simple') {
                 html += `<textarea class="q-text" rows="1" placeholder="${lang.ph_q}"></textarea>`;
             } else if (type === 'reading') {
-                html += `<label class="no-print-label">Texto:</label><textarea class="q-reading reading-text" rows="5" placeholder="${lang.ph_read}"></textarea><textarea class="q-text" rows="2" placeholder="${lang.ph_subq}" style="margin-top:5px; font-weight:700;"></textarea><div style="margin-top:5px; border-top:1px dashed #ccc;"><span class="no-print-label" style="font-size:10px; color:blue;">${lang.lbl_print}</span><div style="height:30px;"></div></div>`;
+                html += `<label class="no-print-label" style="font-size:11px; font-weight:bold; color:#005fb8;">Texto:</label><textarea class="q-reading reading-text" rows="5" placeholder="${lang.ph_read}"></textarea><textarea class="q-text" rows="2" placeholder="${lang.ph_subq}" style="margin-top:5px; font-weight:700;"></textarea><div style="margin-top:5px; border-top:1px dashed #ccc;"><span class="no-print-label" style="font-size:10px; color:var(--primary);">${lang.lbl_print}</span><div style="height:30px;"></div></div>`;
             } else if (type === 'dev') {
                 html += `<textarea class="q-text" rows="1" placeholder="${lang.ph_q}"></textarea><div class="lines-area"><div style="border-bottom:1px solid black; margin-top:18px;"></div><div style="border-bottom:1px solid black; margin-top:18px;"></div><div style="border-bottom:1px solid black; margin-top:18px;"></div></div>`;
             } else if (type === 'image') {
